@@ -62,7 +62,7 @@ def test_gan(
 
 if __name__ == '__main__':
     data, model = test_gan(
-        n_iters=1000,
+        n_iters=300,
         learning_rate=0.001,
         n_mc_samples=1,
         scale_init=1.,
@@ -75,7 +75,7 @@ if __name__ == '__main__':
     cPickle.dump(model.generator_model_params, f)
     f.close()
     f = open('discriminator_model.model', 'wb')
-    cPickle.dump(model.discriminator_model_params)
+    cPickle.dump(model.discriminator_model_params,)
     f.close()
     size = 28
     im_size = (28, 28)
