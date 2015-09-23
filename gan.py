@@ -126,8 +126,8 @@ class GAN(object):
             wrt=self.generator_model_params
         )
 
-        discriminator_updates = self.adam(self.discriminator_model_params, dist_gparms, self.optimize_params, minimum=False)
-        generate_updates = self.adam(self.generator_model_params, gen_gparams, self.optimize_params)
+        discriminator_updates = self.sgd(self.discriminator_model_params, dist_gparms, self.optimize_params, minimum=False)
+        generate_updates = self.sgd(self.generator_model_params, gen_gparams, self.optimize_params)
 
         self.hist = self.optimize(
             X,
@@ -139,6 +139,18 @@ class GAN(object):
             generate_updates,
             self.rng,
         )
+
+    def sgd(self, params, gparams, hyper_params, minimum=True):
+        learning_rate = hyper_params['learning_rate']
+        updates = OrderedDict()
+
+        for param, gparam in zip(params, gparams):
+            if minimum:
+                updates[param] = param - learning_rate * gparam
+            else:
+                updates[param] = param + learning_rate * gparam
+
+        return updates
 
     def adam(self, params, gparams, hyper_params, minimum=True):
         updates = OrderedDict()

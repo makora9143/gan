@@ -4,6 +4,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy import misc
 
 from utils import load_data
 from gan import GAN
@@ -67,6 +68,15 @@ if __name__ == '__main__':
         )
     hist = np.vstack(model.hist)
     plt.plot(hist[:, 0], hist[:, 1])
+    size = 28
+    im_size = (28, 28)
+    output_image = np.zeros((size * 10, size * 10))
+
+    for i in range(10):
+        ims = model.create_fake_x(10)
+        for im in ims:
+            output_image[im_size[0]*i: im_size[0]*(i+1), im_size[1]*j:im_size[1]*(j+1)] = im.reshape(im_size)
+    misc.imsave('sample_'+'.jpg', output_image)
 
     plt.show()
 # End of Line.
