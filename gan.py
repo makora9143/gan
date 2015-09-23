@@ -189,13 +189,13 @@ class GAN(object):
 
         train_discrimenator = theano.function(
             inputs=[X],
-            outputs=[dist_cost],
+            outputs=dist_cost,
             updates=dist_updates
         )
 
         train_generator = theano.function(
             inputs=[X],
-            outputs=[gen_cost],
+            outputs=gen_cost,
             updates=gen_updates
         )
 
