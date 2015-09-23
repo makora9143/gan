@@ -62,7 +62,7 @@ def test_gan(
 
 if __name__ == '__main__':
     data, model = test_gan(
-        n_iters=300,
+        n_iters=1000,
         learning_rate=0.001,
         n_mc_samples=1,
         scale_init=1.,

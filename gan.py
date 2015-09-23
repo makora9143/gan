@@ -132,10 +132,10 @@ class GAN(object):
             wrt=self.generator_model_params
         )
 
-        discriminator_updates = self.sgd(self.discriminator_model_params, dist_gparms, self.optimize_params, minimum=False)
-        generate_updates = self.sgd(self.generator_model_params, gen_gparams, self.optimize_params)
+        discriminator_updates = self.adam(self.discriminator_model_params, dist_gparms, self.optimize_params, minimum=False)
+        generate_updates = self.adam(self.generator_model_params, gen_gparams, self.optimize_params)
 
-        self.hist = self.optimize(
+        self.hist = self.early_stopping(
             X,
             x_datas,
             self.optimize_params,
@@ -247,6 +247,74 @@ class GAN(object):
                 print ('\tvalid Discriminator error: %.3f, Generator error: %.3f, total error: %.3f' %
                        (valid_dist, valid_gen, valid_dist+valid_gen))
                 cost_history.append((i, valid_dist+valid_gen))
+        return cost_history
+
+    def early_stopping(self, X, x_datas, optimize_params, dist_cost, gen_cost, dist_updates, gen_updates, rng):
+
+        train_discrimenator = theano.function(
+            inputs=[X],
+            outputs=dist_cost,
+            updates=dist_updates
+        )
+
+        train_generator = theano.function(
+            inputs=[X],
+            outputs=gen_cost,
+            updates=gen_updates
+        )
+
+        valid = theano.function(
+            inputs=[X],
+            outputs=[dist_cost, gen_cost]
+        )
+
+        patience = optimize_params['patience']
+        patience_increase = optimize_params['patience_increase']
+        improvement_threshold = optimize_params['improvement_threshold']
+        minibatch_size = optimize_params['minibatch_size']
+
+        train_x, valid_x = train_test_split(x_datas, train_size=5./6)
+
+        n_samples = train_x.shape[0]
+        n_minibatches = n_samples / minibatch_size
+        cost_history = []
+        best_params = None
+        valid_best_error = - np.inf
+        best_epoch = 0
+
+        done_looping = False
+
+        for i in xrange(1000000):
+            if done_looping: break
+            ixs = rng.permutation(n_samples)
+            for j in xrange(0, n_samples, minibatch_size):
+                dist_cost = train_discrimenator(train_x[ixs[j:j+minibatch_size]])
+                gen_cost = train_generator(train_x[ixs[j:j+minibatch_size]])
+
+                iter = i * (n_minibatches) + j / minibatch_size
+
+                if (iter+1) % 50 == 0:
+                    valid_error = 0.
+                    for _ in xrange(3):
+                        valid_error += valid(valid_x)
+                    valid_error /= 3
+                    if i % 100 == 0:
+                        print ('epoch %d, minibatch %d/%d, valid total error: %.3f' %
+                               (i, j / minibatch_size + 1, n_samples / minibatch_size, valid_error))
+                    cost_history.append((i*j, valid_error))
+                    if valid_error > valid_best_error:
+                        if valid_error > valid_best_error * improvement_threshold:
+                            patience = max(patience, iter * patience_increase)
+                        best_params = self.model_params_
+                        valid_best_error = valid_error
+                        best_epoch = i
+
+                if patience <= iter:
+                    done_looping = True
+                    break
+        print ('epoch %d, minibatch %d/%d, valid best error: %.3f' %
+               (best_epoch, j / minibatch_size + 1, n_samples / minibatch_size, valid_best_error))
+        self.model_params_ = best_params
         return cost_history
 
 # End of Line.
