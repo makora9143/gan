@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 
+import cPickle
+
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import misc
@@ -68,6 +70,13 @@ if __name__ == '__main__':
         )
     hist = np.vstack(model.hist)
     plt.plot(hist[:, 0], hist[:, 1])
+
+    f = open('generate_model.model', 'wb')
+    cPickle.dump(model.generator_model_params, f)
+    f.close()
+    f = open('discriminator_model.model', 'wb')
+    cPickle.dump(model.discriminator_model_params)
+    f.close()
     size = 28
     im_size = (28, 28)
     output_image = np.zeros((size * 10, size * 10))

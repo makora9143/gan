@@ -103,8 +103,14 @@ class GAN(object):
         )
 
     def create_fake_x(self, num_sample):
-        z = self.rng_noise.uniform(size=(num_sample, 1200))
-        return self.generate_x(z)
+        # z = self.rng_noise.uniform(size=(num_sample, 1200))
+        z = np.random.uniform(size=(num_sample, 1200))
+        Z = T.matrix()
+        create = theano.function(
+            inputs=[Z],
+            outputs=self.generate_x(Z)
+        )
+        return create(z)
 
     def fit(self, x_datas):
         X = T.matrix()
