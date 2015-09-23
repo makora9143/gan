@@ -42,7 +42,7 @@ class GAN(object):
     def identify(self, x): return x
     def get_name(self): return self.model_name
 
-    def init_model_parmas(self, dim_x):
+    def init_model_params(self, dim_x):
         # dim_z = self.hyper_params['dim_z']
         dim_z = 1200
 
@@ -104,7 +104,7 @@ class GAN(object):
 
     def create_fake_x(self, num_sample):
         # z = self.rng_noise.uniform(size=(num_sample, 1200))
-        z = np.random.uniform(size=(num_sample, 1200))
+        z = np.random.uniform(size=(num_sample, 1200)).astype(theano.config.floatX)
         Z = T.matrix()
         create = theano.function(
             inputs=[Z],
@@ -116,7 +116,7 @@ class GAN(object):
         X = T.matrix()
         self.rng_noise = RandomStreams(self.hyper_params['rng_seed'])
 
-        self.init_model_parmas(dim_x=x_datas.shape[1])
+        self.init_model_params(dim_x=x_datas.shape[1])
 
         dist_cost, dist_gen_cost = self.get_cost_function(X)
 
