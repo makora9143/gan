@@ -75,7 +75,7 @@ if __name__ == '__main__':
     cPickle.dump(model.generator_model_params, f)
     f.close()
     f = open('discriminator_model.model', 'wb')
-    cPickle.dump(model.discriminator_model_params,)
+    cPickle.dump(model.discriminator_model_params, f)
     f.close()
     size = 28
     im_size = (28, 28)
