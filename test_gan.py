@@ -83,7 +83,7 @@ if __name__ == '__main__':
 
     for i in range(10):
         ims = model.create_fake_x(10)
-        for im in ims:
+        for j, im in enumerate(ims):
             output_image[im_size[0]*i: im_size[0]*(i+1), im_size[1]*j:im_size[1]*(j+1)] = im.reshape(im_size)
     misc.imsave('sample_'+'.jpg', output_image)
 
