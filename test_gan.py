@@ -35,7 +35,7 @@ def test_gan(
         'n_mod_hist'    : 100,
         'patience'      : 5000,
         'patience_increase': 2,
-        'improvement_threshold': 1.005,
+        'improvement_threshold': 0.995,
     }
 
     all_params = {
