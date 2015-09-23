@@ -265,7 +265,7 @@ class GAN(object):
 
         valid = theano.function(
             inputs=[X],
-            outputs=[dist_cost, gen_cost]
+            outputs=dist_cost+gen_cost
         )
 
         patience = optimize_params['patience']
