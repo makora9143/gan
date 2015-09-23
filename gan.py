@@ -43,7 +43,8 @@ class GAN(object):
     def get_name(self): return self.model_name
 
     def init_model_parmas(self, dim_x):
-        dim_z = self.hyper_params['dim_z']
+        # dim_z = self.hyper_params['dim_z']
+        dim_z = 1200
 
         activation = {
             'tanh': T.tanh,
@@ -101,6 +102,9 @@ class GAN(object):
             T.sum(T.log(1 - self.discriminate_x(x_tilda))) / X.shape[0]
         )
 
+    def create_fake_x(self, num_sample):
+        z = self.rng_noise.uniform(size=(num_sample, 1200))
+        return self.generate_x(z)
 
     def fit(self, x_datas):
         X = T.matrix()
