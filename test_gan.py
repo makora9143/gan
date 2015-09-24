@@ -28,7 +28,7 @@ def test_gan(
     optimize_params = {
         'learning_rate' : learning_rate,
         'n_iters'       : n_iters,
-        'minibatch_size': 1000,
+        'minibatch_size': 100,
         'calc_history'     : 'all',
         'calc_hist'     : 'all',
         'n_mod_history'    : 100,
@@ -63,7 +63,7 @@ def test_gan(
 if __name__ == '__main__':
     data, model = test_gan(
         n_iters=1000,
-        learning_rate=0.001,
+        learning_rate=0.1,
         n_mc_samples=1,
         scale_init=1.,
         dim_z=50,
