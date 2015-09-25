@@ -73,7 +73,7 @@ class Maxout(object):
         self.param_shape = (piece, dim_input, dim_output)
 
         self.W = sharedX(U(self.param_shape, irange=irange))
-        self.b = sharedX(U((piece, dim_output, irange=irange)))
+        self.b = sharedX(U((piece, dim_output), irange=irange))
 
         self.params = [self.W, self.b]
 
