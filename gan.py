@@ -44,7 +44,7 @@ class GAN(object):
 
     def init_model_params(self, dim_x):
         # dim_z = self.hyper_params['dim_z']
-        dim_z = 1200
+        dim_z = 100
 
         activation = {
             'tanh': T.tanh,
@@ -95,7 +95,7 @@ class GAN(object):
         return layer_out
 
     def get_cost_function(self, X):
-        z = self.rng_noise.uniform(size=(X.shape[0], 1200))
+        z = self.rng_noise.uniform(low=-np.sqrt(3), high=np.sqrt(3),size=(X.shape[0], 100))
         x_tilda = self.generate_x(z)
         return (
             T.sum(T.log(self.discriminate_x(X))) / X.shape[0],
@@ -104,7 +104,7 @@ class GAN(object):
 
     def create_fake_x(self, num_sample):
         # z = self.rng_noise.uniform(size=(num_sample, 1200))
-        z = np.random.uniform(size=(num_sample, 1200)).astype(theano.config.floatX)
+        z = np.random.uniform(low=-np.sqrt(3), high=np.sqrt(3), size=(num_sample, 100)).astype(theano.config.floatX)
         Z = T.matrix()
         create = theano.function(
             inputs=[Z],
