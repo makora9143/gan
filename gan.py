@@ -56,7 +56,7 @@ class GAN(object):
 
         self.generator_model = [
             Layer(param_shape=(dim_z, 1200), irange=0.05, function=activation['relu']),
-            Layer(param_shape=(1200, 1200), irange=0.05, function=activation['relu']),
+            # Layer(param_shape=(1200, 1200), irange=0.05, function=activation['relu']),
             Layer(param_shape=(1200, dim_x), irange=0.05, function=activation['sigmoid']),
         ]
 
@@ -66,8 +66,10 @@ class GAN(object):
         ]
 
         self.discriminator_model = [
-            Maxout(dim_input=dim_x, irange=0.005, dim_output=240, piece=2),
-            Maxout(dim_input=240, irange=0.005, dim_output=240, piece=2),
+            # Maxout(dim_input=dim_x, irange=0.005, dim_output=240, piece=2),
+            # Maxout(dim_input=240, irange=0.005, dim_output=240, piece=2),
+            Layer(param_shape=(dim_x, 240), irange=0.005, function=activation['tanh']),
+            # Maxout(param_shape=(240, 240), irange=0.005, function=activation['tanh']),
             Layer(param_shape=(240, 1), irange=0.005, function=activation['sigmoid'])
         ]
 
