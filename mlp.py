@@ -72,8 +72,8 @@ class Maxout(object):
     def __init__(self, dim_input, dim_output, piece=2, irange=None, rng=RNG):
         self.param_shape = (piece, dim_input, dim_output)
 
-        self.W = sharedX(U(self.param_shape), irange=irange)
-        self.b = sharedX(U((piece, dim_output), irange=irange))
+        self.W = sharedX(U(self.param_shape, irange=irange))
+        self.b = sharedX(U((piece, dim_output, irange=irange)))
 
         self.params = [self.W, self.b]
 
