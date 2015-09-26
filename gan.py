@@ -135,7 +135,7 @@ class GAN(object):
         )
 
         discriminator_updates = self.sgd(self.discriminator_model_params, dist_gparms, self.optimize_params)
-        generate_updates = self.sgd(self.generator_model_params, gen_gparams, self.optimize_params)
+        generate_updates = self.sgd(self.generator_model_params, gen_gparams, self.optimize_params, min=True)
 
         self.hist = self.optimize(
             X,
@@ -148,12 +148,14 @@ class GAN(object):
             self.rng,
         )
 
-    def sgd(self, params, gparams, hyper_params):
+    def sgd(self, params, gparams, hyper_params, mix=False):
         learning_rate = shared32(0.1)
         updates = OrderedDict()
 
         for param, gparam in zip(params, gparams):
             updates[param] = param + learning_rate * gparam
+            if min:
+                updates[param] = param - learning_rate * gparam
         return updates
 
     def momentums(self, params, gparams, hyper_params):
