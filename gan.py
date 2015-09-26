@@ -102,7 +102,7 @@ class GAN(object):
         x_tilda2 = self.generate_x(z2)
         return (
             -T.mean(T.log(self.discriminate_x(X)) + T.log(1 - self.discriminate_x(x_tilda))),
-            -T.mean(T.log(self.discriminate_x(x_tilda2)))
+            T.mean(T.log(self.discriminate_x(x_tilda2)))
             # T.mean(T.log(x_tilda2))
         )
 
