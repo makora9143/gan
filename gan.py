@@ -102,8 +102,8 @@ class GAN(object):
         x_tilda2 = self.generate_x(z2)
         return (
             -T.mean(T.log(self.discriminate_x(X)) + T.log(1 - self.discriminate_x(x_tilda))),
-            # -T.mean(T.log(self.discriminate_x(x_tilda2)))
-            T.mean(T.log(x_tilda2))
+            -T.mean(T.log(self.discriminate_x(x_tilda2)))
+            # T.mean(T.log(x_tilda2))
         )
 
     def create_fake_x(self, num_sample):
@@ -121,11 +121,11 @@ class GAN(object):
 
         self.init_model_params(dim_x=x_datas.shape[1])
 
-        dist_cost, gen_cost= self.get_cost_function(X)
+        dis_cost, gen_cost= self.get_cost_function(X)
 
         # gradient discriminator
-        dist_gparams = T.grad(
-            cost=dist_cost,
+        dis_gparams = T.grad(
+            cost=dis_cost,
             wrt=self.discriminator_model_params
         )
 
@@ -135,14 +135,14 @@ class GAN(object):
             wrt=self.generator_model_params
         )
 
-        discriminator_updates = self.sgd(self.discriminator_model_params, dist_gparams, self.optimize_params)
-        generate_updates = self.sgd(self.generator_model_params, gen_gparams, self.optimize_params)
+        discriminator_updates = self.sgd(self.discriminator_model_params, dis_gparams, self.optimize_params)
+        generate_updates = self.adam(self.generator_model_params, gen_gparams, self.optimize_params)
 
         self.hist = self.optimize(
             X,
             x_datas,
             self.optimize_params,
-            dist_cost,
+            dis_cost,
             gen_cost,
             discriminator_updates,
             generate_updates,
@@ -214,17 +214,17 @@ class GAN(object):
 
         return updates
 
-    def optimize(self, X, x_datas, optimize_params, dist_cost, gen_cost, dist_updates, gen_updates, rng):
+    def optimize(self, X, x_datas, optimize_params, dis_cost, gen_cost, dis_updates, gen_updates, rng):
         n_iters = optimize_params['n_iters']
         minibatch_size = optimize_params['minibatch_size']
-        n_mod_history = optimize_params['n_mod_history']
+        # n_mod_history = optimize_params['n_mod_history']
 
         train_x, valid_x = train_test_split(x_datas, train_size=5./6)
 
         train_discrimenator = theano.function(
             inputs=[X],
-            outputs=dist_cost,
-            updates=dist_updates
+            outputs=dis_cost,
+            updates=dis_updates
         )
 
         train_generator = theano.function(
@@ -235,7 +235,7 @@ class GAN(object):
 
         valid = theano.function(
             inputs=[X],
-            outputs=[dist_cost, gen_cost]
+            outputs=[dis_cost, gen_cost]
         )
 
         check_generate = theano.function(
@@ -247,7 +247,7 @@ class GAN(object):
         cost_history = []
 
         total_gen = 0
-        total_dist = 0
+        total_dis = 0
         num = n_samples / minibatch_size
 
         print 'start learning'
@@ -256,13 +256,13 @@ class GAN(object):
             for j in xrange(0, n_samples, minibatch_size):
                 # before = check_generate(train_x[ixs[j:j+minibatch_size]])
                 # dist_cost = train_discrimenator(train_x[ixs[j:j+minibatch_size]])
-                dist_cost = 0
+                dis_cost = 0
                 # after = check_generate(train_x[ixs[j:j+minibatch_size]])
                 gen_cost = train_generator(train_x[ixs[j:j+minibatch_size]])
                 # final = check_generate(train_x[ixs[j:j+minibatch_size]])
                 # print dist_cost
                 total_gen += gen_cost
-                total_dist = dist_cost
+                total_dis = dis_cost
                 # print 'before:', before, 'after:', after, 'final:', final
             print i,
 
@@ -270,11 +270,11 @@ class GAN(object):
             if np.mod(i, 10) == 0:
                 print ''
                 print ('%d epoch train discriminator error: %f, generator error: %.3f' %
-                      (i, total_dist / num, total_gen / num))
-                valid_dist, valid_gen = valid(valid_x)
+                      (i, total_dis / num, total_gen / num))
+                valid_dis, valid_gen = valid(valid_x)
                 print ('\tvalid Discriminator error: %f, Generator error: %.3f' %
-                       (valid_dist, valid_gen))
-                cost_history.append((i, valid_dist))
+                       (valid_dis, valid_gen))
+                cost_history.append((i, valid_dis))
         return cost_history
 
     def early_stopping(self, X, x_datas, optimize_params, dist_cost, gen_cost, dist_updates, gen_updates, rng):
