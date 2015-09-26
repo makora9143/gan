@@ -56,7 +56,7 @@ class GAN(object):
 
         self.generator_model = [
             Layer(param_shape=(dim_z, 1200), irange=0.05, function=activation['relu']),
-            Layer(param_shape=(1200, 1200), irange=0.05, function=activation['relu']),
+            # Layer(param_shape=(1200, 1200), irange=0.05, function=activation['relu']),
             Layer(param_shape=(1200, dim_x), irange=0.05, function=activation['sigmoid']),
             # Layer(param_shape=(dim_z, 500), irange=0.05, function=activation['relu']),
             # Layer(param_shape=(1200, 500), irange=0.05, function=activation['relu']),
@@ -237,11 +237,8 @@ class GAN(object):
         for i in xrange(n_iters):
             ixs = rng.permutation(n_samples)
             for j in xrange(0, n_samples, minibatch_size):
-                # before = check_generate(train_x[ixs[j:j+minibatch_size]])
                 dist_cost = train_discrimenator(train_x[ixs[j:j+minibatch_size]])
-                # after = check_generate(train_x[ixs[j:j+minibatch_size]])
                 gen_cost = train_generator(train_x[ixs[j:j+minibatch_size]])
-                # final = check_generate(train_x[ixs[j:j+minibatch_size]])
                 total_gen += gen_cost
                 total_dist = dist_cost
                 # print 'before:', before, 'after:', after, 'final:', final
