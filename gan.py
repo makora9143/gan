@@ -237,18 +237,19 @@ class GAN(object):
         for i in xrange(n_iters):
             ixs = rng.permutation(n_samples)
             for j in xrange(0, n_samples, minibatch_size):
-                before = check_generate(train_x[ixs[j:j+minibatch_size]])
+                # before = check_generate(train_x[ixs[j:j+minibatch_size]])
                 dist_cost = train_discrimenator(train_x[ixs[j:j+minibatch_size]])
-                after = check_generate(train_x[ixs[j:j+minibatch_size]])
+                # after = check_generate(train_x[ixs[j:j+minibatch_size]])
                 gen_cost = train_generator(train_x[ixs[j:j+minibatch_size]])
-                final = check_generate(train_x[ixs[j:j+minibatch_size]])
+                # final = check_generate(train_x[ixs[j:j+minibatch_size]])
                 total_gen += gen_cost
                 total_dist = dist_cost
-                print 'before:', before, 'after:', after, 'final:', final
-            print i
+                # print 'before:', before, 'after:', after, 'final:', final
+            print i, ',',
 
             # if np.mod(i, n_mod_history) == 0:
             if np.mod(i, 50) == 0:
+                print ''
                 print ('%d epoch train discriminator error: %f, generator error: %.3f' %
                       (i, total_dist / num, total_gen / num))
                 valid_dist, valid_gen = valid(valid_x)
