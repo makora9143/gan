@@ -259,6 +259,7 @@ class GAN(object):
             for j in xrange(0, n_samples, minibatch_size):
                 dist_cost = train_discrimenator(train_x[ixs[j:j+minibatch_size]])
                 gen_cost = train_generator(train_x[ixs[j:j+minibatch_size]])
+                print dist_cost
                 total_gen += gen_cost
                 total_dist = dist_cost
                 # print 'before:', before, 'after:', after, 'final:', final
