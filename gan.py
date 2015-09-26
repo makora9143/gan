@@ -69,8 +69,8 @@ class GAN(object):
         ]
 
         self.discriminator_model = [
-            Maxout(dim_input=dim_x, irange=0.005, dim_output=240, piece=2),
-            Maxout(dim_input=240, irange=0.005, dim_output=240, piece=2),
+            Maxout(dim_input=dim_x, irange=0.005, dim_output=240, piece=5),
+            Maxout(dim_input=240, irange=0.005, dim_output=240, piece=5),
             Layer(param_shape=(240, 1), irange=0.005, function=activation['sigmoid'])
         ]
 
@@ -92,6 +92,7 @@ class GAN(object):
         for i, layer in enumerate(self.discriminator_model):
             if i == 0:
                 layer_out = layer.fprop(X)
+                layer_out *= 2. * (self.rng_noise.uniform(size=layer_out.shape, dtype='float32') > .5)
             else:
                 layer_out = layer.fprop(layer_out)
 
@@ -99,11 +100,13 @@ class GAN(object):
 
     def get_cost_function(self, X):
         z = self.rng_noise.uniform(low=-np.sqrt(3), high=np.sqrt(3),size=(X.shape[0], 100)).astype(theano.config.floatX)
+        # z = shared32(np.random.uniform(low=-np.sqrt(3), high=np.sqrt(3),size=(1000, 100)))
         x_tilda = self.generate_x(z)
+        z2 = self.rng_noise.uniform(low=-np.sqrt(3), high=np.sqrt(3),size=(X.shape[0], 100)).astype(theano.config.floatX)
+        x_tilda2 = self.generate_x(z2)
         return (
             T.mean(T.log(self.discriminate_x(X)) + T.log(1 - self.discriminate_x(x_tilda))),
-            # T.mean(T.log(self.discriminate_x(x_tilda)))
-            T.mean(T.log(1 - self.discriminate_x(x_tilda)))
+            T.mean(T.log(self.discriminate_x(x_tilda2)))
         )
 
     def create_fake_x(self, num_sample):
@@ -138,7 +141,7 @@ class GAN(object):
         discriminator_updates = self.sgd(self.discriminator_model_params, dist_gparms, self.optimize_params)
         generate_updates = self.sgd(self.generator_model_params, gen_gparams, self.optimize_params, minimum=True)
 
-        self.hist = self.optimize(
+        self.hist = self.early_stopping(
             X,
             x_datas,
             self.optimize_params,
