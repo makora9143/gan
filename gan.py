@@ -261,7 +261,7 @@ class GAN(object):
                 print dist_cost
                 total_gen += gen_cost
                 total_dist = dist_cost
-                print 'before:', before, 'after:', after, 'final:', final
+                # print 'before:', before, 'after:', after, 'final:', final
             print i,
 
             # if np.mod(i, n_mod_history) == 0:
@@ -272,7 +272,7 @@ class GAN(object):
                 valid_dist, valid_gen = valid(valid_x)
                 print ('\tvalid Discriminator error: %f, Generator error: %.3f' %
                        (valid_dist, valid_gen))
-                cost_history.append((i, valid_dist+valid_gen))
+                cost_history.append((i, valid_dist))
         return cost_history
 
     def early_stopping(self, X, x_datas, optimize_params, dist_cost, gen_cost, dist_updates, gen_updates, rng):
