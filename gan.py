@@ -151,7 +151,8 @@ class GAN(object):
         )
 
     def sgd(self, params, gparams, hyper_params):
-        learning_rate = shared32(0.1)
+        # learning_rate = shared32(0.1)
+        learning_rate = 0.1
         updates = OrderedDict()
 
         for param, gparam in zip(params, gparams):
