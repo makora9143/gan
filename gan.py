@@ -155,7 +155,7 @@ class GAN(object):
         updates = OrderedDict()
 
         for param, gparam in zip(params, gparams):
-            updates[param] = param + learning_rate * gparam
+            updates[param] = param - learning_rate * gparam
         return updates
 
     def momentums(self, params, gparams, hyper_params):
