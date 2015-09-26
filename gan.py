@@ -162,7 +162,7 @@ class GAN(object):
         updates = OrderedDict()
 
         for param, gparam in zip(params, gparams):
-            gmomentum = shared32(param.get_value(borror=True) * 0.)
+            gmomentum = shared32(param.get_value(borrow=True) * 0.)
             gmomentum_new = momentum * gmomentum - learning_rate * gparam
             param_new = param - gmomentum_new
             updates[gmomentum] = gmomentum_new
