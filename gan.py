@@ -101,8 +101,7 @@ class GAN(object):
         z = self.rng_noise.uniform(low=-np.sqrt(3), high=np.sqrt(3),size=(X.shape[0], 100)).astype(theano.config.floatX)
         x_tilda = self.generate_x(z)
         return (
-            T.mean(T.log(self.discriminate_x(X))),
-            T.mean(T.log(1 - self.discriminate_x(x_tilda))),
+            T.mean(T.log(self.discriminate_x(X)) + T.log(1 - self.discriminate_x(x_tilda))),
             T.mean(T.log(self.discriminate_x(x_tilda)))
         )
 
@@ -122,11 +121,11 @@ class GAN(object):
 
         self.init_model_params(dim_x=x_datas.shape[1])
 
-        dist_cost, dist_gen_cost, gen_cost= self.get_cost_function(X)
+        dist_cost, gen_cost= self.get_cost_function(X)
 
         # gradient discriminator
         dist_gparms = T.grad(
-            cost=dist_cost+dist_gen_cost,
+            cost=dist_cost,
             wrt=self.discriminator_model_params
         )
 
@@ -141,8 +140,7 @@ class GAN(object):
 
         hoge = theano.function(
             inputs=[X],
-            outputs=dist_cost + dist_gen_cost
-
+            outputs=dist_cost
         )
         print hoge(x_datas)
 
@@ -150,7 +148,7 @@ class GAN(object):
             X,
             x_datas,
             self.optimize_params,
-            dist_cost + dist_gen_cost,
+            dist_cost,
             gen_cost,
             discriminator_updates,
             generate_updates,
@@ -232,7 +230,6 @@ class GAN(object):
         n_samples = train_x.shape[0]
         cost_history = []
 
-        total_cost = 0
         total_gen = 0
         total_dist = 0
         num = n_samples / minibatch_size
@@ -243,15 +240,14 @@ class GAN(object):
             for j in xrange(0, n_samples, minibatch_size):
                 dist_cost = train_discrimenator(train_x[ixs[j:j+minibatch_size]])
                 gen_cost = train_generator(train_x[ixs[j:j+minibatch_size]])
-                total_cost += (dist_cost + gen_cost)
                 total_gen += gen_cost
                 total_dist = dist_cost
             print i
 
             # if np.mod(i, n_mod_history) == 0:
             if np.mod(i, 10) == 0:
-                print ('%d epoch train discriminator error: %.3f, generator error: %.3f, total error: %.3f' %
-                      (i, total_dist / num, total_gen / num, total_cost / num))
+                print ('%d epoch train discriminator error: %.3f, generator error: %.3f' %
+                      (i, total_dist / num, total_gen / num))
                 valid_dist, valid_gen = valid(valid_x)
                 print ('\tvalid Discriminator error: %.3f, Generator error: %.3f, total error: %.3f' %
                        (valid_dist, valid_gen, valid_dist+valid_gen))
