@@ -55,12 +55,12 @@ class GAN(object):
         }
 
         self.generator_model = [
-            # Layer(param_shape=(dim_z, 1200), irange=0.05, function=activation['relu']),
+            Layer(param_shape=(dim_z, 1200), irange=0.05, function=activation['relu']),
             # Layer(param_shape=(1200, 1200), irange=0.05, function=activation['relu']),
-            # Layer(param_shape=(1200, dim_x), irange=0.05, function=activation['sigmoid']),
-            Layer(param_shape=(dim_z, 500), irange=0.05, function=activation['relu']),
+            Layer(param_shape=(1200, dim_x), irange=0.05, function=activation['sigmoid']),
+            # Layer(param_shape=(dim_z, 500), irange=0.05, function=activation['relu']),
             # Layer(param_shape=(500, 500), irange=0.05, function=activation['relu']),
-            Layer(param_shape=(500, dim_x), irange=0.05, function=activation['sigmoid']),
+            # Layer(param_shape=(500, dim_x), irange=0.05, function=activation['sigmoid']),
         ]
 
         self.generator_model_params = [
@@ -106,7 +106,6 @@ class GAN(object):
         )
 
     def create_fake_x(self, num_sample):
-        # z = self.rng_noise.uniform(size=(num_sample, 1200))
         z = np.random.uniform(low=-np.sqrt(3), high=np.sqrt(3), size=(num_sample, 100)).astype(theano.config.floatX)
         Z = T.matrix()
         create = theano.function(
@@ -135,8 +134,8 @@ class GAN(object):
             wrt=self.generator_model_params
         )
 
-        discriminator_updates = self.sgd(self.discriminator_model_params, dist_gparms, self.optimize_params)
-        generate_updates = self.sgd(self.generator_model_params, gen_gparams, self.optimize_params)
+        discriminator_updates = self.momentums(self.discriminator_model_params, dist_gparms, self.optimize_params)
+        generate_updates = self.momentums(self.generator_model_params, gen_gparams, self.optimize_params)
 
         self.hist = self.optimize(
             X,
@@ -156,6 +155,21 @@ class GAN(object):
         for param, gparam in zip(params, gparams):
             updates[param] = param + learning_rate * gparam
         return updates
+
+    def momentums(self, params, gparams, hyper_params):
+        learning_rate = shared32(0.1)
+        momentum = shared32(0.7)
+        updates = OrderedDict()
+
+        for param, gparam in zip(params, gparams):
+            gmomentum = shared32(param.get_value(borror=True) * 0.)
+            gmomentum_new = momentum * gmomentum - learning_rate * gparam
+            param_new = param - gmomentum_new
+            updates[gmomentum] = gmomentum_new
+            updates[param] = param_new
+
+        return updates
+
 
     def adam(self, params, gparams, hyper_params, minimum=True):
         updates = OrderedDict()
@@ -245,7 +259,7 @@ class GAN(object):
             print i,
 
             # if np.mod(i, n_mod_history) == 0:
-            if np.mod(i, 50) == 0:
+            if np.mod(i, 10) == 0:
                 print ''
                 print ('%d epoch train discriminator error: %f, generator error: %.3f' %
                       (i, total_dist / num, total_gen / num))
