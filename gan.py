@@ -103,7 +103,7 @@ class GAN(object):
         return (
             -T.mean(T.log(self.discriminate_x(X)) + T.log(1 - self.discriminate_x(x_tilda))),
             # -T.mean(T.log(self.discriminate_x(x_tilda2)))
-            -T.mean(T.log(x_tilda2)
+            -T.mean(T.log(x_tilda2))
         )
 
     def create_fake_x(self, num_sample):
