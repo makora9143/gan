@@ -149,7 +149,7 @@ class GAN(object):
             self.rng,
         )
 
-    def sgd(self, params, gparams, hyper_params, minimum=True):
+    def sgd(self, params, gparams, hyper_params, minimum=False):
         learning_rate = shared32(0.1)
         updates = OrderedDict()
 
