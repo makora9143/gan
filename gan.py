@@ -134,8 +134,8 @@ class GAN(object):
             wrt=self.generator_model_params
         )
 
-        discriminator_updates = self.momentums(self.discriminator_model_params, dist_gparms, self.optimize_params)
-        generate_updates = self.momentums(self.generator_model_params, gen_gparams, self.optimize_params)
+        discriminator_updates = self.sgd(self.discriminator_model_params, dist_gparms, self.optimize_params)
+        generate_updates = sgd(self.generator_model_params, gen_gparams, self.optimize_params)
 
         self.hist = self.optimize(
             X,
