@@ -58,9 +58,6 @@ class GAN(object):
             Layer(param_shape=(dim_z, 1200), irange=0.05, function=activation['relu']),
             Layer(param_shape=(1200, 1200), irange=0.05, function=activation['relu']),
             Layer(param_shape=(1200, dim_x), irange=0.05, function=activation['sigmoid']),
-            # Layer(param_shape=(dim_z, 500), irange=0.05, function=activation['relu']),
-            # Layer(param_shape=(500, 500), irange=0.05, function=activation['relu']),
-            # Layer(param_shape=(500, dim_x), irange=0.05, function=activation['sigmoid']),
         ]
 
         self.generator_model_params = [
@@ -100,13 +97,12 @@ class GAN(object):
 
     def get_cost_function(self, X):
         z = self.rng_noise.uniform(low=-np.sqrt(3), high=np.sqrt(3),size=(X.shape[0], 100)).astype(theano.config.floatX)
-        # z = shared32(np.random.uniform(low=-np.sqrt(3), high=np.sqrt(3),size=(1000, 100)))
         x_tilda = self.generate_x(z)
         z2 = self.rng_noise.uniform(low=-np.sqrt(3), high=np.sqrt(3),size=(X.shape[0], 100)).astype(theano.config.floatX)
         x_tilda2 = self.generate_x(z2)
         return (
-            T.mean(T.log(self.discriminate_x(X)) + T.log(1 - self.discriminate_x(x_tilda))),
-            T.mean(T.log(self.discriminate_x(x_tilda2)))
+            -T.mean(T.log(self.discriminate_x(X)) + T.log(1 - self.discriminate_x(x_tilda))),
+            -T.mean(T.log(self.discriminate_x(x_tilda2)))
         )
 
     def create_fake_x(self, num_sample):
@@ -139,7 +135,7 @@ class GAN(object):
         )
 
         discriminator_updates = self.sgd(self.discriminator_model_params, dist_gparms, self.optimize_params)
-        generate_updates = self.sgd(self.generator_model_params, gen_gparams, self.optimize_params, minimum=True)
+        generate_updates = self.sgd(self.generator_model_params, gen_gparams, self.optimize_params)
 
         self.hist = self.optimize(
             X,
@@ -152,13 +148,13 @@ class GAN(object):
             self.rng,
         )
 
-    def sgd(self, params, gparams, hyper_params, minimum=False):
+    def sgd(self, params, gparams, hyper_params, minimum=True):
         learning_rate = shared32(0.1)
         updates = OrderedDict()
 
         for param, gparam in zip(params, gparams):
             updates[param] = param + learning_rate * gparam
-            if min:
+            if minimum:
                 updates[param] = param - learning_rate * gparam
         return updates
 
@@ -170,7 +166,7 @@ class GAN(object):
         for param, gparam in zip(params, gparams):
             gmomentum = shared32(param.get_value(borrow=True) * 0.)
             gmomentum_new = momentum * gmomentum - learning_rate * gparam
-            param_new = param - gmomentum_new
+            param_new = param + gmomentum_new
             updates[gmomentum] = gmomentum_new
             updates[param] = param_new
 
@@ -257,12 +253,15 @@ class GAN(object):
         for i in xrange(n_iters):
             ixs = rng.permutation(n_samples)
             for j in xrange(0, n_samples, minibatch_size):
+                before = check_generate(train_x[ixs[j:j+minibatch_size]])
                 dist_cost = train_discrimenator(train_x[ixs[j:j+minibatch_size]])
+                after = check_generate(train_x[ixs[j:j+minibatch_size]])
                 gen_cost = train_generator(train_x[ixs[j:j+minibatch_size]])
+                final = check_generate(train_x[ixs[j:j+minibatch_size]])
                 print dist_cost
                 total_gen += gen_cost
                 total_dist = dist_cost
-                # print 'before:', before, 'after:', after, 'final:', final
+                print 'before:', before, 'after:', after, 'final:', final
             print i,
 
             # if np.mod(i, n_mod_history) == 0:
