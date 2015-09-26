@@ -55,12 +55,12 @@ class GAN(object):
         }
 
         self.generator_model = [
-            Layer(param_shape=(dim_z, 1200), irange=0.05, function=activation['relu']),
+            # Layer(param_shape=(dim_z, 1200), irange=0.05, function=activation['relu']),
             # Layer(param_shape=(1200, 1200), irange=0.05, function=activation['relu']),
-            Layer(param_shape=(1200, dim_x), irange=0.05, function=activation['sigmoid']),
-            # Layer(param_shape=(dim_z, 500), irange=0.05, function=activation['relu']),
-            # Layer(param_shape=(1200, 500), irange=0.05, function=activation['relu']),
-            # Layer(param_shape=(500, dim_x), irange=0.05, function=activation['sigmoid']),
+            # Layer(param_shape=(1200, dim_x), irange=0.05, function=activation['sigmoid']),
+            Layer(param_shape=(dim_z, 500), irange=0.05, function=activation['relu']),
+            Layer(param_shape=(500, 500), irange=0.05, function=activation['relu']),
+            Layer(param_shape=(500, dim_x), irange=0.05, function=activation['sigmoid']),
         ]
 
         self.generator_model_params = [
