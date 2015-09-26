@@ -123,7 +123,7 @@ class GAN(object):
         dist_cost, gen_cost= self.get_cost_function(X)
 
         # gradient discriminator
-        dist_gparms = T.grad(
+        dist_gparams = T.grad(
             cost=dist_cost,
             wrt=self.discriminator_model_params
         )
@@ -134,7 +134,7 @@ class GAN(object):
             wrt=self.generator_model_params
         )
 
-        discriminator_updates = self.sgd(self.discriminator_model_params, dist_gparms, self.optimize_params)
+        discriminator_updates = self.sgd(self.discriminator_model_params, dist_gparams, self.optimize_params)
         generate_updates = self.sgd(self.generator_model_params, gen_gparams, self.optimize_params)
 
         self.hist = self.optimize(
@@ -253,11 +253,12 @@ class GAN(object):
         for i in xrange(n_iters):
             ixs = rng.permutation(n_samples)
             for j in xrange(0, n_samples, minibatch_size):
-                before = check_generate(train_x[ixs[j:j+minibatch_size]])
-                dist_cost = train_discrimenator(train_x[ixs[j:j+minibatch_size]])
-                after = check_generate(train_x[ixs[j:j+minibatch_size]])
+                # before = check_generate(train_x[ixs[j:j+minibatch_size]])
+                # dist_cost = train_discrimenator(train_x[ixs[j:j+minibatch_size]])
+                dist_cost = 0
+                # after = check_generate(train_x[ixs[j:j+minibatch_size]])
                 gen_cost = train_generator(train_x[ixs[j:j+minibatch_size]])
-                final = check_generate(train_x[ixs[j:j+minibatch_size]])
+                # final = check_generate(train_x[ixs[j:j+minibatch_size]])
                 # print dist_cost
                 total_gen += gen_cost
                 total_dist = dist_cost
