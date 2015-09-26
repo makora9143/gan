@@ -141,7 +141,7 @@ class GAN(object):
         discriminator_updates = self.sgd(self.discriminator_model_params, dist_gparms, self.optimize_params)
         generate_updates = self.sgd(self.generator_model_params, gen_gparams, self.optimize_params, minimum=True)
 
-        self.hist = self.early_stopping(
+        self.hist = self.optimize(
             X,
             x_datas,
             self.optimize_params,
