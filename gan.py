@@ -131,7 +131,7 @@ class GAN(object):
 
         # gradient generator
         gen_gparams = T.grad(
-            cost=gen_cost,
+            cost=-gen_cost,
             wrt=self.generator_model_params
         )
 
