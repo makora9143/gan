@@ -237,6 +237,7 @@ class GAN(object):
         for i in xrange(n_iters):
             ixs = rng.permutation(n_samples)
             for j in xrange(0, n_samples, minibatch_size):
+                before = check_generate(train_x[ixs[j:j+minibatch_size]])
                 dist_cost = train_discrimenator(train_x[ixs[j:j+minibatch_size]])
                 after = check_generate(train_x[ixs[j:j+minibatch_size]])
                 gen_cost = train_generator(train_x[ixs[j:j+minibatch_size]])
