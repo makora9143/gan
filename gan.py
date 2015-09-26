@@ -55,12 +55,12 @@ class GAN(object):
         }
 
         self.generator_model = [
-            # Layer(param_shape=(dim_z, 1200), irange=0.05, function=activation['relu']),
-            # Layer(param_shape=(1200, 1200), irange=0.05, function=activation['relu']),
-            # Layer(param_shape=(1200, dim_x), irange=0.05, function=activation['sigmoid']),
-            Layer(param_shape=(dim_z, 500), irange=0.05, function=activation['relu']),
+            Layer(param_shape=(dim_z, 1200), irange=0.05, function=activation['relu']),
+            Layer(param_shape=(1200, 1200), irange=0.05, function=activation['relu']),
+            Layer(param_shape=(1200, dim_x), irange=0.05, function=activation['sigmoid']),
+            # Layer(param_shape=(dim_z, 500), irange=0.05, function=activation['relu']),
             # Layer(param_shape=(1200, 500), irange=0.05, function=activation['relu']),
-            Layer(param_shape=(500, dim_x), irange=0.05, function=activation['sigmoid']),
+            # Layer(param_shape=(500, dim_x), irange=0.05, function=activation['sigmoid']),
         ]
 
         self.generator_model_params = [
@@ -137,12 +137,6 @@ class GAN(object):
 
         discriminator_updates = self.sgd(self.discriminator_model_params, dist_gparms, self.optimize_params)
         generate_updates = self.sgd(self.generator_model_params, gen_gparams, self.optimize_params)
-
-        hoge = theano.function(
-            inputs=[X],
-            outputs=dist_cost
-        )
-        print hoge(x_datas)
 
         self.hist = self.optimize(
             X,
@@ -227,6 +221,11 @@ class GAN(object):
             outputs=[dist_cost, gen_cost]
         )
 
+        check_generate = theano.function(
+            inputs=[X],
+            outputs=gen_cost
+        )
+
         n_samples = train_x.shape[0]
         cost_history = []
 
@@ -238,19 +237,22 @@ class GAN(object):
         for i in xrange(n_iters):
             ixs = rng.permutation(n_samples)
             for j in xrange(0, n_samples, minibatch_size):
+                before = check_generate(train_x[ixs[j:j+minibatch_size]])
                 dist_cost = train_discrimenator(train_x[ixs[j:j+minibatch_size]])
+                after = check_generate(train_x[ixs[j:j+minibatch_size]])
                 gen_cost = train_generator(train_x[ixs[j:j+minibatch_size]])
                 total_gen += gen_cost
                 total_dist = dist_cost
+                print 'before:', before, 'after:', after
             print i
 
             # if np.mod(i, n_mod_history) == 0:
             if np.mod(i, 50) == 0:
-                print ('%d epoch train discriminator error: %.3f, generator error: %.3f' %
+                print ('%d epoch train discriminator error: %f, generator error: %.3f' %
                       (i, total_dist / num, total_gen / num))
                 valid_dist, valid_gen = valid(valid_x)
-                print ('\tvalid Discriminator error: %.3f, Generator error: %.3f, total error: %.3f' %
-                       (valid_dist, valid_gen, valid_dist+valid_gen))
+                print ('\tvalid Discriminator error: %f, Generator error: %.3f' %
+                       (valid_dist, valid_gen))
                 cost_history.append((i, valid_dist+valid_gen))
         return cost_history
 
