@@ -102,7 +102,7 @@ class GAN(object):
         x_tilda2 = self.generate_x(z2)
         return (
             -T.mean(T.log(self.discriminate_x(X)) + T.log(1 - self.discriminate_x(x_tilda))),
-            T.mean(T.log(1-self.discriminate_x(x_tilda2)))
+            T.log(self.discriminate_x(x_tilda2))
             # T.mean(T.log(x_tilda2))
         )
 
@@ -121,7 +121,11 @@ class GAN(object):
 
         self.init_model_params(dim_x=x_datas.shape[1])
 
-        dis_cost, gen_cost= self.get_cost_function(X)
+        dis_cost, gen_cost = self.get_cost_function(X)
+        hoge = theano.function(inputs=[X], outputs=gen_cost)
+        print hoge(x_datas)
+
+        gen_cost = T.mean(gen_cost)
 
         # gradient discriminator
         dis_gparams = T.grad(
@@ -174,7 +178,7 @@ class GAN(object):
         return updates
 
 
-    def adam(self, params, gparams, hyper_params, minimum=True):
+    def adam(self, params, gparams, hyper_params):
         updates = OrderedDict()
         decay1 = 0.1
         decay2 = 0.001
@@ -203,10 +207,7 @@ class GAN(object):
 
             effstep_new = lr_t * effgrad
 
-            if minimum:
-                param_new = param - effstep_new
-            else:
-                param_new = param + effstep_new
+            param_new = param + effstep_new
 
             updates[param] = param_new
             updates[mom1] = mom1_new
