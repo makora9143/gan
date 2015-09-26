@@ -56,7 +56,7 @@ class GAN(object):
 
         self.generator_model = [
             Layer(param_shape=(dim_z, 1200), irange=0.05, function=activation['relu']),
-            # Layer(param_shape=(1200, 1200), irange=0.05, function=activation['relu']),
+            Layer(param_shape=(1200, 1200), irange=0.05, function=activation['relu']),
             Layer(param_shape=(1200, dim_x), irange=0.05, function=activation['sigmoid']),
         ]
 
@@ -66,10 +66,8 @@ class GAN(object):
         ]
 
         self.discriminator_model = [
-            # Maxout(dim_input=dim_x, irange=0.005, dim_output=240, piece=2),
-            # Maxout(dim_input=240, irange=0.005, dim_output=240, piece=2),
-            Layer(param_shape=(dim_x, 240), irange=0.005, function=activation['tanh']),
-            # Maxout(param_shape=(240, 240), irange=0.005, function=activation['tanh']),
+            Maxout(dim_input=dim_x, irange=0.005, dim_output=240, piece=2),
+            Maxout(dim_input=240, irange=0.005, dim_output=240, piece=2),
             Layer(param_shape=(240, 1), irange=0.005, function=activation['sigmoid'])
         ]
 
@@ -97,11 +95,12 @@ class GAN(object):
         return layer_out
 
     def get_cost_function(self, X):
-        z = self.rng_noise.uniform(low=-np.sqrt(3), high=np.sqrt(3),size=(X.shape[0], 100))
+        z = self.rng_noise.uniform(low=-np.sqrt(3), high=np.sqrt(3),size=(X.shape[0], 100)).astype(theano.config.floatX)
         x_tilda = self.generate_x(z)
         return (
-            T.sum(T.log(self.discriminate_x(X))) / X.shape[0],
-            T.sum(T.log(1 - self.discriminate_x(x_tilda))) / X.shape[0]
+            T.mean(T.log(self.discriminate_x(X))),
+            T.mean(T.log(1 - self.discriminate_x(x_tilda))),
+            T.mean(T.log(self.discriminate_x(x_tilda)))
         )
 
     def create_fake_x(self, num_sample):
@@ -120,7 +119,7 @@ class GAN(object):
 
         self.init_model_params(dim_x=x_datas.shape[1])
 
-        dist_cost, dist_gen_cost = self.get_cost_function(X)
+        dist_cost, dist_gen_cost, gen_cost= self.get_cost_function(X)
 
         # gradient discriminator
         dist_gparms = T.grad(
@@ -130,35 +129,37 @@ class GAN(object):
 
         # gradient generator
         gen_gparams = T.grad(
-            cost=dist_gen_cost,
+            cost=gen_cost,
             wrt=self.generator_model_params
         )
 
-        discriminator_updates = self.sgd(self.discriminator_model_params, dist_gparms, self.optimize_params, minimum=False)
+        discriminator_updates = self.sgd(self.discriminator_model_params, dist_gparms, self.optimize_params)
         generate_updates = self.sgd(self.generator_model_params, gen_gparams, self.optimize_params)
+
+        hoge = theano.function(
+            inputs=[X],
+            outputs=dist_cost + dist_gen_cost
+
+        )
+        print hoge(x_datas)
 
         self.hist = self.optimize(
             X,
             x_datas,
             self.optimize_params,
-            dist_cost,
-            dist_gen_cost,
+            dist_cost + dist_gen_cost,
+            gen_cost,
             discriminator_updates,
             generate_updates,
             self.rng,
         )
 
-    def sgd(self, params, gparams, hyper_params, minimum=True):
-        # learning_rate = hyper_params['learning_rate']
-        learning_rate = 0.1
+    def sgd(self, params, gparams, hyper_params):
+        learning_rate = shared32(0.1)
         updates = OrderedDict()
 
         for param, gparam in zip(params, gparams):
-            if minimum:
-                updates[param] = param - learning_rate * gparam
-            else:
-                updates[param] = param + learning_rate * gparam
-
+            updates[param] = param + learning_rate * gparam
         return updates
 
     def adam(self, params, gparams, hyper_params, minimum=True):
