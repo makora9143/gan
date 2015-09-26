@@ -125,7 +125,7 @@ class GAN(object):
         hoge = theano.function(inputs=[X], outputs=gen_cost)
         print hoge(x_datas)
 
-        gen_cost = T.mean(gen_cost)
+        gen_cost_mean = T.mean(gen_cost)
 
         # gradient discriminator
         dis_gparams = T.grad(
@@ -148,10 +148,11 @@ class GAN(object):
             x_datas,
             self.optimize_params,
             dis_cost,
-            gen_cost,
+            gen_cost_mean,
             discriminator_updates,
             generate_updates,
             self.rng,
+            gen_cost
         )
 
     def sgd(self, params, gparams, hyper_params):
@@ -215,7 +216,7 @@ class GAN(object):
 
         return updates
 
-    def optimize(self, X, x_datas, optimize_params, dis_cost, gen_cost, dis_updates, gen_updates, rng):
+    def optimize(self, X, x_datas, optimize_params, dis_cost, gen_cost, dis_updates, gen_updates, rng, genc):
         n_iters = optimize_params['n_iters']
         minibatch_size = optimize_params['minibatch_size']
         # n_mod_history = optimize_params['n_mod_history']
@@ -241,7 +242,7 @@ class GAN(object):
 
         check_generate = theano.function(
             inputs=[X],
-            outputs=gen_cost
+            outputs=genc
         )
 
         n_samples = train_x.shape[0]
@@ -262,6 +263,7 @@ class GAN(object):
                 gen_cost = train_generator(train_x[ixs[j:j+minibatch_size]])
                 # final = check_generate(train_x[ixs[j:j+minibatch_size]])
                 # print dist_cost
+                print check_generate(train_x[ixs[j:j+minibatch_size]])
                 total_gen += gen_cost
                 total_dis = dis_cost
                 # print 'before:', before, 'after:', after, 'final:', final
