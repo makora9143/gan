@@ -59,7 +59,7 @@ class GAN(object):
             # Layer(param_shape=(1200, 1200), irange=0.05, function=activation['relu']),
             # Layer(param_shape=(1200, dim_x), irange=0.05, function=activation['sigmoid']),
             Layer(param_shape=(dim_z, 500), irange=0.05, function=activation['relu']),
-            Layer(param_shape=(500, 500), irange=0.05, function=activation['relu']),
+            # Layer(param_shape=(500, 500), irange=0.05, function=activation['relu']),
             Layer(param_shape=(500, dim_x), irange=0.05, function=activation['sigmoid']),
         ]
 
@@ -242,7 +242,7 @@ class GAN(object):
                 total_gen += gen_cost
                 total_dist = dist_cost
                 # print 'before:', before, 'after:', after, 'final:', final
-            print i, ',',
+            print i,
 
             # if np.mod(i, n_mod_history) == 0:
             if np.mod(i, 50) == 0:
