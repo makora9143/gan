@@ -258,7 +258,7 @@ class GAN(object):
                 after = check_generate(train_x[ixs[j:j+minibatch_size]])
                 gen_cost = train_generator(train_x[ixs[j:j+minibatch_size]])
                 final = check_generate(train_x[ixs[j:j+minibatch_size]])
-                print dist_cost
+                # print dist_cost
                 total_gen += gen_cost
                 total_dist = dist_cost
                 # print 'before:', before, 'after:', after, 'final:', final
