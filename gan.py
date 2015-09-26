@@ -150,14 +150,12 @@ class GAN(object):
             self.rng,
         )
 
-    def sgd(self, params, gparams, hyper_params, minimum=True):
+    def sgd(self, params, gparams, hyper_params):
         learning_rate = shared32(0.1)
         updates = OrderedDict()
 
         for param, gparam in zip(params, gparams):
-            updates[param] = param + learning_rate * gparam
-            if minimum:
-                updates[param] = param - learning_rate * gparam
+            updates[param] = param - learning_rate * gparam
         return updates
 
     def momentums(self, params, gparams, hyper_params):
