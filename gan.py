@@ -246,10 +246,10 @@ class GAN(object):
                 total_cost += (dist_cost + gen_cost)
                 total_gen += gen_cost
                 total_dist = dist_cost
-            print "=",
+            print i
 
-            if np.mod(i, n_mod_history) == 0:
-                print ""
+            # if np.mod(i, n_mod_history) == 0:
+            if np.mod(i, 10) == 0:
                 print ('%d epoch train discriminator error: %.3f, generator error: %.3f, total error: %.3f' %
                       (i, total_dist / num, total_gen / num, total_cost / num))
                 valid_dist, valid_gen = valid(valid_x)
