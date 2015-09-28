@@ -108,13 +108,13 @@ class AdversarialNets(object):
             wrt=self.discriminator_params
         )
 
-        generator_updates = self.momentum(
+        generator_updates = self.sgd(
             params=self.generator_params,
             gparams=generator_gparams,
             hyper_params=self.optimize_params
         )
 
-        discriminator_updates = self.momentum(
+        discriminator_updates = self.sgd(
             params=self.discriminator_params,
             gparams=discriminator_gparams,
             hyper_params=self.optimize_params
