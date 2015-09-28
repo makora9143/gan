@@ -179,7 +179,7 @@ class AdversarialNets(object):
         train_x, valid_x = train_test_split(x_datas, train_size=5./6)
         minibatch_size = 100
         d_times = 1
-        n_iters = 100
+        n_iters = 250
 
         generator_train = theano.function(
             inputs=[X],
@@ -199,7 +199,6 @@ class AdversarialNets(object):
 
         total_discremenator = []
         total_generator = []
-
 
         for i in xrange(n_iters):
             ixs = np.random.permutation(n_samples)

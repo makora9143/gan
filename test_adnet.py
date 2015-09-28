@@ -36,7 +36,9 @@ def test_gan():
 if __name__ == '__main__':
     model = test_gan()
     hist = np.vstack(model.discriminator_hist)
-    plt.plot(hist[:, 0], hist[:, 1])
+    plt.plot(hist[:, 0], hist[:, 1], 'b', label='discriminator')
+    hist = np.vstack(model.generator_hist)
+    plt.plot(hist[:, 0], hist[:, 1], 'g', label='generator')
 
     size = 28
     im_size = (28, 28)
