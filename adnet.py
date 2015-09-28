@@ -213,6 +213,8 @@ class AdversarialNets(object):
             if i % 10 == 0:
                 mean_discriminator = np.mean(total_discremenator)
                 mean_generator = np.mean(total_generator)
+                total_discremenator = []
+                total_generator = []
                 print i, 'Epoch Discremenator:', mean_discriminator, 'Generator:', mean_generator
                 generator_hist.append((i, mean_generator))
                 discriminator_hist.append((i, mean_discriminator))
