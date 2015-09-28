@@ -179,7 +179,7 @@ class AdversarialNets(object):
         train_x, valid_x = train_test_split(x_datas, train_size=5./6)
         minibatch_size = 100
         d_times = 1
-        n_iters = 500
+        n_iters = 100
 
         generator_train = theano.function(
             inputs=[X],
