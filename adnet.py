@@ -218,8 +218,8 @@ class AdversarialNets(object):
         for i in xrange(n_iters):
             ixs = np.random.permutation(n_samples)
             for j in xrange(0, n_samples, minibatch_size):
-                for _ in xrange(d_times):
-                    discriminator_error = discriminator_train(train_x[ixs[j: j+minibatch_size]])
+                # for _ in xrange(d_times):
+                #     discriminator_error = discriminator_train(train_x[ixs[j: j+minibatch_size]])
                 generator_error = generator_train(train_x[ixs[j: j+minibatch_size]])
                 total_generator.append(generator_error)
                 total_discremenator.append(discriminator_error)
