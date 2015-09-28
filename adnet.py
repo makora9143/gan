@@ -194,7 +194,7 @@ class AdversarialNets(object):
         train_x = x_datas
         minibatch_size = 100
         d_times = 1
-        n_iters = 250
+        n_iters = 1000
 
         generator_train = theano.function(
             inputs=[X],
