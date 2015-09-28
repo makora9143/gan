@@ -108,13 +108,13 @@ class AdversarialNets(object):
             wrt=self.discriminator_params
         )
 
-        generator_updates = self.sgd(
+        generator_updates = self.momentum(
             params=self.generator_params,
             gparams=generator_gparams,
             hyper_params=self.optimize_params
         )
 
-        discriminator_updates = self.sgd(
+        discriminator_updates = self.momentum(
             params=self.discriminator_params,
             gparams=discriminator_gparams,
             hyper_params=self.optimize_params
@@ -136,6 +136,21 @@ class AdversarialNets(object):
         for param, gparam in zip(params, gparams):
             updates[param] = param + learning_rate * gparam
 
+        return updates
+
+    def momentum(self, params, gparams, hyper_params):
+        updates = OrderedDict()
+        learning_rate = 0.1
+        momentum = shared32(0.5)
+        updates[momentum] = momentum + 0.2 / 250
+
+        for param, gparam in zip(params, gparams):
+            mom = shared32(param.get_value(borrow=True) * 0.)
+            mom_new = mom * momentum - learning_rate * gparam
+            param_new = param - mom_new
+
+            updates[mom] = mom_new
+            updates[param] = param_new
         return updates
 
     def adam(self, params, gparams, hyper_params):
@@ -176,7 +191,7 @@ class AdversarialNets(object):
         return updates
 
     def optimize(self, X, x_datas, objective_G, objective_D, generator_updates, discriminator_updates):
-        train_x, valid_x = train_test_split(x_datas, train_size=5./6)
+        train_x = x_data
         minibatch_size = 100
         d_times = 1
         n_iters = 250
