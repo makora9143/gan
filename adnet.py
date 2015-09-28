@@ -220,6 +220,7 @@ class AdversarialNets(object):
             for j in xrange(0, n_samples, minibatch_size):
                 # for _ in xrange(d_times):
                 #     discriminator_error = discriminator_train(train_x[ixs[j: j+minibatch_size]])
+                discriminator_error = 0
                 generator_error = generator_train(train_x[ixs[j: j+minibatch_size]])
                 total_generator.append(generator_error)
                 total_discremenator.append(discriminator_error)
