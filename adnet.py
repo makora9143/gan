@@ -108,13 +108,13 @@ class AdversarialNets(object):
             wrt=self.discriminator_params
         )
 
-        generator_updates = self.sgd(
+        generator_updates = self.momentum(
             params=self.generator_params,
             gparams=generator_gparams,
             hyper_params=self.optimize_params
         )
 
-        discriminator_updates = self.sgd(
+        discriminator_updates = self.momentum(
             params=self.discriminator_params,
             gparams=discriminator_gparams,
             hyper_params=self.optimize_params
@@ -146,7 +146,7 @@ class AdversarialNets(object):
 
         for param, gparam in zip(params, gparams):
             mom = shared32(param.get_value(borrow=True) * 0.)
-            mom_new = mom * momentum - learning_rate * gparam
+            mom_new = mom * momentum + learning_rate * gparam
             param_new = param - mom_new
 
             updates[mom] = mom_new
