@@ -191,7 +191,7 @@ class AdversarialNets(object):
         return updates
 
     def optimize(self, X, x_datas, objective_G, objective_D, generator_updates, discriminator_updates):
-        train_x = x_data
+        train_x = x_datas
         minibatch_size = 100
         d_times = 1
         n_iters = 250
